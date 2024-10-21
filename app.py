@@ -11,7 +11,7 @@ penguins = load_penguins()
 app_ui = ui.page_fluid(
     ui.panel_title("Interactive Histogram and Penguin Data"),
     ui.sidebar(
-        ui.input_slider("selected_number_of_bins", "Number of Bins", 0, 100, 20),  # Change min to 1
+        ui.input_slider("selected_number_of_bins", "Number of Bins", 0, 100, 20),  
         ui.input_select("species", "Select Species", choices=["All"] + list(penguins['species'].dropna().unique()))  # Changed options to choices
     ),
     ui.output_plot("histogram"),
