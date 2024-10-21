@@ -1,0 +1,9 @@
+matplotlib
+numpy
+pandas
+palmerpenguins
+shiny
+App
+ui
+render
+seaborn
