@@ -1,28 +1,49 @@
-from shiny import App, render, ui
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from palmerpenguins import load_penguins
+from shiny import App, ui, render
 
-# Generate some random data
-data = np.random.randn(1000)
+# Load the Palmer Penguins dataset
+penguins = load_penguins()
 
+# Set up the app's UI
 app_ui = ui.page_fluid(
-    ui.input_slider("selected_number_of_bins", "Number of Bins", 0, 100, 20),
-    ui.output_plot("histogram_plot")
+    ui.panel_title("Interactive Histogram and Penguin Data"),
+    ui.sidebar(
+        ui.input_slider("selected_number_of_bins", "Number of Bins", 0, 100, 20),
+        ui.input_select("species", "Select Species", options=["All"] + list(penguins['species'].dropna().unique()))
+    ),
+    ui.output_plot("histogram"),
+    ui.output_plot("scatterplot")
 )
 
+# Define the server logic
 def server(input, output):
-    @output
-    @render.plot
-    def histogram_plot():
-        plt.figure(figsize=(8, 5))
-        plt.hist(data, bins=input.selected_number_of_bins(), density=True, alpha=0.7)
-        plt.title('Histogram of Random Data')
-        plt.xlabel('Value')
-        plt.ylabel('Density')
-        plt.grid(True)
-        plt.show()
+    @output.plot(alt="A histogram")
+    def histogram():
+        np.random.seed(19680801)
+        x = 100 + 15 * np.random.randn(437)
+        plt.hist(x, bins=input.selected_number_of_bins(), density=True)
+        plt.xlabel("Value")
+        plt.ylabel("Density")
+        plt.title("Histogram of Random Values")
 
+    @output.plot(alt="Penguin Flipper Length vs Body Mass")
+    def scatterplot():
+        df = penguins
+        if input.species() != "All":
+            df = df[df['species'] == input.species()]
+        
+        plt.scatter(df['flipper_length_mm'], df['body_mass_g'], alpha=0.7)
+        plt.xlabel("Flipper Length (mm)")
+        plt.ylabel("Body Mass (g)")
+        plt.title("Flipper Length vs Body Mass for Penguins")
+        plt.grid()
+
+# Combine the UI and server into an app
 app = App(app_ui, server)
 
+# Run the app
 if __name__ == "__main__":
     app.run()
