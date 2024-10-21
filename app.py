@@ -1,6 +1,10 @@
+import micropip
+
+# Install necessary packages
+await micropip.install("click")
+
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from palmerpenguins import load_penguins
 from shiny import App, ui, render
 
@@ -11,15 +15,15 @@ penguins = load_penguins()
 app_ui = ui.page_fluid(
     ui.panel_title("Interactive Histogram and Penguin Data"),
     ui.sidebar(
-        ui.input_slider("selected_number_of_bins", "Number of Bins", 0, 100, 20),
-        ui.input_select("species", "Select Species", options=["All"] + list(penguins['species'].dropna().unique()))
+        ui.input_slider("selected_number_of_bins", "Number of Bins", 1, 100, 20),
+        ui.input_select("species", "Select Species", choices=["All"] + list(penguins['species'].dropna().unique()))
     ),
     ui.output_plot("histogram"),
     ui.output_plot("scatterplot")
 )
 
 # Define the server logic
-def server(input, output):
+def server(input, output, session):
     @output.plot(alt="A histogram")
     def histogram():
         np.random.seed(19680801)
@@ -44,6 +48,4 @@ def server(input, output):
 # Combine the UI and server into an app
 app = App(app_ui, server)
 
-# Run the app
-if __name__ == "__main__":
-    app.run()
+# Do not call app.run(), just let the environment manage the app
